@@ -25,11 +25,7 @@ spec:
   http:
   - match:
     - uri:
-        exact: /Home/WeatherForecast
-    - uri:
-        prefix: /Home/Index
-    - uri:
-        exact: /home/privacy
+        prefix: /
     route:
     - destination:
         host: demo-app
