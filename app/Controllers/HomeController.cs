@@ -41,7 +41,7 @@ namespace app.Controllers
     List<WeatherForecast> reservationList = new List<WeatherForecast>();
     using (var httpClient = new HttpClient())
     {
-        using (var response = await httpClient.GetAsync("http://weather-api/weatherforecast"))
+        using (var response = await httpClient.GetAsync("http://weather-api:8080/weatherforecast"))
         {
             string apiResponse = await response.Content.ReadAsStringAsync();
             reservationList = JsonConvert.DeserializeObject<List<WeatherForecast>>(apiResponse);
