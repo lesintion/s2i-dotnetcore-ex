@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using app.Models;
+using System.Net.Http;
+using Newtonsoft.Json;
 
 namespace app.Controllers
 {
@@ -33,5 +35,19 @@ namespace app.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
+        public async Task<IActionResult> WeatherForecast()
+{
+    List<WeatherForecast> reservationList = new List<WeatherForecast>();
+    using (var httpClient = new HttpClient())
+    {
+        using (var response = await httpClient.GetAsync("http://weather-api/weatherforecast"))
+        {
+            string apiResponse = await response.Content.ReadAsStringAsync();
+            reservationList = JsonConvert.DeserializeObject<List<WeatherForecast>>(apiResponse);
+        }
+    }
+    return View(reservationList);
+}
     }
 }
