@@ -1,0 +1,70 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: vueapp-gateway
+spec:
+  selector:
+    istio: ingressgateway # use istio default controller
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: vueapp
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - vueapp-gateway
+  http:
+  - match:
+    - uri:
+        prefix: "/vueapp"
+    rewrite:
+      uri: "/"
+    route:
+    - destination:
+        host: vueapp
+        port:
+          number: 80
+  - match:
+    - uri:
+        prefix: "/api/todos"
+    route:
+    - destination:
+        host: opc-todo-api
+        subset: v1
+        port:
+          number: 80
+      weight: 25
+    - destination:
+        host: opc-todo-api
+        port:
+          number: 80
+        subset: v2
+      weight: 75
+  - match:
+    - uri:
+        prefix: "/api/comments"
+    route:
+    - destination:
+        host: opc-todo-api
+        subset: v2
+        port:
+          number: 80
+  - match:
+    - uri:
+        prefix: "/api/posts"
+    rewrite:
+      uri: "/post"
+    route:
+    - destination:
+        host: opc-post-api
+        port:
+          number: 80
