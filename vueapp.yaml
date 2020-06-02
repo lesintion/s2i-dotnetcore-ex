@@ -19,7 +19,8 @@ metadata:
   name: vueapp
 spec:
   hosts:
-  - "*"
+  - istio-ingressgateway-istio-system.apps-crc.testing
+  - vueapp
   gateways:
   - vueapp-gateway
   http:
@@ -37,18 +38,24 @@ spec:
     - uri:
         prefix: "/api/todos"
     route:
-    - destination:
-        host: opc-todo-api
-        subset: v1
-        port:
-          number: 80
-      weight: 25
+    # - destination:
+    #     host: opc-todo-api
+    #     subset: v1
+    #     port:
+    #       number: 80
+    #   weight: 5
     - destination:
         host: opc-todo-api
         port:
           number: 80
         subset: v2
-      weight: 75
+      weight: 20
+    - destination:
+        host: opc-todo-api
+        port:
+          number: 80
+        subset: v1
+      weight: 80
   - match:
     - uri:
         prefix: "/api/comments"
@@ -68,3 +75,39 @@ spec:
         host: opc-post-api
         port:
           number: 80
+
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: opc-todo-api
+spec:
+  hosts:
+  - opc-todo-api
+  http:
+  - match:
+    - uri:
+        exact: "/api/todos"
+    route:
+    - destination:
+        host: opc-todo-api
+        port:
+          number: 80
+        subset: v2
+      weight: 20
+    - destination:
+        host: opc-todo-api
+        port:
+          number: 80
+        subset: v1
+      weight: 80
+  - match:
+    - uri:
+        exact: "/api/comments"
+    route:
+    - destination:
+        host: opc-todo-api
+        port:
+          number: 80
+        subset: v2
+   
